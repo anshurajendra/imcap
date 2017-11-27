@@ -78,50 +78,48 @@ class CaptionGenerator():
 
 
         total_count = 0
-        i = 0
-        image_counter = -1
-        while 1:
-            image_counter+=1
-            next_captions = []
-            images = []
-            while i < batch_size:
-                current_image = self.encoded_images[imgs[image_counter]]
-                current_caption = self.encoded_captions[imgs[image_counter]]
-                next_captions.append(current_caption)
-                images.append(current_image)
-                i+=1
-            next_captions = np.asarray(next_captions)
-            images = np.asarray(images)
-            yield [images, next_captions]
-            next_captions = []
-            images = []
-            i=0
+        # i = 0
+        # image_counter = -1
         # while 1:
-        #     image_counter = -1
-        #     for text in caps:
-        #         image_counter+=1
+        #     image_counter+=1
+        #     next_captions = []
+        #     images = []
+        #     while i < batch_size:
         #         current_image = self.encoded_images[imgs[image_counter]]
         #         current_caption = self.encoded_captions[imgs[image_counter]]
-        #         for i in range(len(text.split())-1):
-        #             total_count+=1
-        #             partial = [self.word_index[txt] for txt in text.split()[:i+1]]
-        #             partial_caps.append(partial)
-        #             next = np.zeros(self.vocab_size)
-        #             next[self.word_index[text.split()[i+1]]] = 1
-        #             next_words.append(next)
-        #             images.append(current_image)
+        #         next_captions.append(current_caption)
+        #         images.append(current_image)
+        #         i+=1
+        #     next_captions = np.asarray(next_captions)
+        #     images = np.asarray(images)
+        #     yield [images, next_captions]
+        #     next_captions = []
+        #     images = []
+        #     i=0
+        while 1:
+            image_counter = -1
+            for text in caps:
+                image_counter+=1
+                current_image = self.encoded_images[imgs[image_counter]]
+                current_caption = self.encoded_captions[imgs[image_counter]]
+                for i in range(len(text.split())-1):
+                    total_count+=1
+                    partial = [self.word_index[txt] for txt in text.split()[:i+1]]
+                    partial_caps.append(partial)
+                    next_words.append(current_caption)
+                    images.append(current_image)
 
-        #             if total_count>=batch_size:
-        #                 next_words = np.asarray(next_words)
-        #                 images = np.asarray(images)
-        #                 partial_caps = sequence.pad_sequences(partial_caps, maxlen=self.max_cap_len, padding='post')
-        #                 total_count = 0
-        #                 gen_count+=1
-        #                 print "yielding count: "+str(gen_count)
-        #                 yield [[images, partial_caps], next_words]
-        #                 partial_caps = []
-        #                 next_words = []
-        #                 images = []
+                    if total_count>=batch_size:
+                        next_words = np.asarray(next_words)
+                        images = np.asarray(images)
+                        partial_caps = sequence.pad_sequences(partial_caps, maxlen=20, padding='post')
+                        total_count = 0
+                        gen_count+=1
+                        print "yielding count: "+str(gen_count)
+                        yield [[images, partial_caps], next_words]
+                        partial_caps = []
+                        next_words = []
+                        images = []
         
     def load_image(self, path):
         img = image.load_img(path, target_size=(224,224))
@@ -149,6 +147,32 @@ class CaptionGenerator():
         model.add(Activation('softmax'))
 
         print "Model created!"
+
+        if(ret_model==True):
+            return model
+
+        model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        return model
+    def create_basic_model(self, ret_model = False):
+        #base_model = VGG16(weights='imagenet', include_top=False, input_shape = (224, 224, 3))
+        #base_model.trainable=False
+        image_model = Sequential()
+        #image_model.add(base_model)
+        #image_model.add(Flatten())
+        image_model.add(Dense(EMBEDDING_DIM, input_dim = 4096, activation='relu'))
+        image_model.add(RepeatVector(20))
+
+        lang_model = Sequential()
+        lang_model.add(Dense(EMBEDDING_DIM, input_shape=(20,300)))
+        lang_model.add(TimeDistributed(Dense(EMBEDDING_DIM)))
+
+        model = Sequential()
+        model.add(Merge([image_model, lang_model], mode='concat'))
+        model.add(RNN(1000,return_sequences=False))
+        model.add(Dense(self.vocab_size))
+        model.add(Activation('softmax'))
+
+        print "Basic Model created!"
 
         if(ret_model==True):
             return model
