@@ -69,7 +69,7 @@ def prepare_dataset(no_imgs = -1):
 		capt_w = capt.split()
 		if(len(capt_w) > MAX_CAP_LEN):
 			capt_w = capt_w[:MAX_CAP_LEN]
-		capt_w = ['START'] +capt_w + ['END'] 
+		capt_w = ['start'] +capt_w + ['end'] 
 		capt_vec = np.zeros((MAX_CAP_LEN+2, EMBEDDING_DIM), dtype=int)
 		for i, w in enumerate(capt_w):
 			capt_vec[i,:] = embeddings_index[w]
@@ -88,7 +88,7 @@ def prepare_dataset(no_imgs = -1):
 		capt_w = capt.split()
 		if(len(capt_w) > MAX_CAP_LEN):
 			capt_w = capt_w[:MAX_CAP_LEN]
-		capt_w = ['START'] +capt_w + ['END'] 
+		capt_w = ['start'] +capt_w + ['end'] 
 		capt_vec = np.zeros((MAX_CAP_LEN+2, EMBEDDING_DIM), dtype=int)
 		for i, w in enumerate(capt_w):
 			if w in embeddings_index:
