@@ -116,7 +116,7 @@ class CaptionGenerator():
                         total_count = 0
                         gen_count+=1
                         print "yielding count: "+str(gen_count)
-                        yield [[images, partial_caps], next_words]
+                        yield [[images, next_words], next_words]
                         partial_caps = []
                         next_words = []
                         images = []
