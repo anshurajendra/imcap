@@ -72,7 +72,8 @@ def prepare_dataset(no_imgs = -1):
 		capt_w = ['mdbs'] +capt_w + ['mdbr'] 
 		capt_vec = np.zeros((MAX_CAP_LEN+2, EMBEDDING_DIM), dtype=int)
 		for i, w in enumerate(capt_w):
-			capt_vec[i,:] = embeddings_index[w.lower()]
+			if w.lower() in embeddings_index:
+				capt_vec[i,:] = embeddings_index[w.lower()]
 		encoded_captions[img] = capt_vec
 		for capt in data[img]:
 			caption = "<start> "+capt+" <end>"
@@ -91,7 +92,7 @@ def prepare_dataset(no_imgs = -1):
 		capt_w = ['mdbs'] +capt_w + ['mdbr'] 
 		capt_vec = np.zeros((MAX_CAP_LEN+2, EMBEDDING_DIM), dtype=int)
 		for i, w in enumerate(capt_w):
-			if w in embeddings_index:
+			if w.lower() in embeddings_index:
 				capt_vec[i,:] = embeddings_index[w.lower()]
 		encoded_captions[img] = capt_vec
 		for capt in data[img]:
