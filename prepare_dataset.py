@@ -5,6 +5,8 @@ import numpy as np
 from keras.applications.imagenet_utils import preprocess_input	
 
 counter = 0
+EMBEDDING_DIM=200
+MAX_CAP_LEN = 22
 
 def load_image(path):
     img = image.load_img(path, target_size=(224,224))
@@ -28,6 +30,8 @@ def get_encoding(model, img):
 	return pred
 
 def prepare_dataset(no_imgs = -1):
+	embeddings_index = pickle.load(open( "encoded_vocab.p", "rb" ))
+
 	f_train_images = open('Flickr8k_text/Flickr_8k.trainImages.txt','rb')
 	train_imgs = f_train_images.read().strip().split('\n') if no_imgs == -1 else f_train_images.read().strip().split('\n')[:no_imgs]
 	f_train_images.close()
@@ -55,11 +59,22 @@ def prepare_dataset(no_imgs = -1):
 	f_captions.close()
 
 	encoded_images = {}
+	encoded_captions = {}
 	encoding_model = load_encoding_model()
 
 	c_train = 0
 	for img in train_imgs:
 		encoded_images[img] = get_encoding(encoding_model, img)
+		capt = data[img][0]
+		capt = "<start> "+capt+" <end>"
+		capt_w = capt.split()
+		if(len(capt_w) > MAX_CAP_LEN):
+			capt_w = capt_w[:MAX_CAP_LEN]
+		capt_vec = np.zeros(MAX_CAP_LEN, EMBEDDING_DIM)
+		for i, w in enumerate(capt_w):
+			if w in embeddings_index:
+				capt_vec[i,:] = embeddings_index(w)
+		encoded_captions[img] = capt_vec
 		for capt in data[img]:
 			caption = "<start> "+capt+" <end>"
 			f_train_dataset.write(img+"\t"+caption+"\n")
@@ -70,6 +85,16 @@ def prepare_dataset(no_imgs = -1):
 	c_test = 0
 	for img in test_imgs:
 		encoded_images[img] = get_encoding(encoding_model, img)
+		capt = data[img][0]
+		capt = "START "+capt+" END"
+		capt_w = capt.split()
+		if(len(capt_w) > MAX_CAP_LEN):
+			capt_w = capt_w[:MAX_CAP_LEN]
+		capt_vec = np.zeros(MAX_CAP_LEN, EMBEDDING_DIM)
+		for i, w in enumerate(capt_w):
+			if w in embeddings_index:
+				capt_vec[i,:] = embeddings_index(w)
+		encoded_captions[img] = capt_vec
 		for capt in data[img]:
 			caption = "<start> "+capt+" <end>"
 			f_test_dataset.write(img+"\t"+caption+"\n")
@@ -77,7 +102,11 @@ def prepare_dataset(no_imgs = -1):
 			c_test += 1
 	f_test_dataset.close()
 	with open( "encoded_images.p", "wb" ) as pickle_f:
-		pickle.dump( encoded_images, pickle_f )  
+		pickle.dump( encoded_images, pickle_f )
+
+	# caption vectors pickle
+	with open( "encoded_captions.p", "wb" ) as pickle_fw:
+		pickle.dump( encoded_captions, pickle_fw )
 	return [c_train, c_test]
 
 if __name__ == '__main__':

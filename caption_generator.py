@@ -20,6 +20,7 @@ class CaptionGenerator():
         self.word_index = None
         self.total_samples = None
         self.encoded_images = pickle.load( open( "encoded_images.p", "rb" ) )
+        self.encoded_captions = pickle.load( open( "encoded_captions.p", "rb" ) )
         self.variable_initializer()
 
     def variable_initializer(self):
@@ -77,31 +78,50 @@ class CaptionGenerator():
 
 
         total_count = 0
+        i = 0
+        image_counter = -1
         while 1:
-            image_counter = -1
-            for text in caps:
-                image_counter+=1
+            image_counter+=1
+            next_captions = []
+            images = []
+            while i < batch_size:
                 current_image = self.encoded_images[imgs[image_counter]]
-                for i in range(len(text.split())-1):
-                    total_count+=1
-                    partial = [self.word_index[txt] for txt in text.split()[:i+1]]
-                    partial_caps.append(partial)
-                    next = np.zeros(self.vocab_size)
-                    next[self.word_index[text.split()[i+1]]] = 1
-                    next_words.append(next)
-                    images.append(current_image)
+                current_caption = self.encoded_captions[imgs[image_counter]]
+                next_captions.append(current_caption)
+                images.append(current_image)
+                i+=1
+            next_captions = np.asarray(next_captions)
+            images = np.asarray(images)
+            yield [images, next_captions]
+            next_captions = []
+            images = []
+            i=0
+        # while 1:
+        #     image_counter = -1
+        #     for text in caps:
+        #         image_counter+=1
+        #         current_image = self.encoded_images[imgs[image_counter]]
+        #         current_caption = self.encoded_captions[imgs[image_counter]]
+        #         for i in range(len(text.split())-1):
+        #             total_count+=1
+        #             partial = [self.word_index[txt] for txt in text.split()[:i+1]]
+        #             partial_caps.append(partial)
+        #             next = np.zeros(self.vocab_size)
+        #             next[self.word_index[text.split()[i+1]]] = 1
+        #             next_words.append(next)
+        #             images.append(current_image)
 
-                    if total_count>=batch_size:
-                        next_words = np.asarray(next_words)
-                        images = np.asarray(images)
-                        partial_caps = sequence.pad_sequences(partial_caps, maxlen=self.max_cap_len, padding='post')
-                        total_count = 0
-                        gen_count+=1
-                        print "yielding count: "+str(gen_count)
-                        yield [[images, partial_caps], next_words]
-                        partial_caps = []
-                        next_words = []
-                        images = []
+        #             if total_count>=batch_size:
+        #                 next_words = np.asarray(next_words)
+        #                 images = np.asarray(images)
+        #                 partial_caps = sequence.pad_sequences(partial_caps, maxlen=self.max_cap_len, padding='post')
+        #                 total_count = 0
+        #                 gen_count+=1
+        #                 print "yielding count: "+str(gen_count)
+        #                 yield [[images, partial_caps], next_words]
+        #                 partial_caps = []
+        #                 next_words = []
+        #                 images = []
         
     def load_image(self, path):
         img = image.load_img(path, target_size=(224,224))
@@ -116,12 +136,10 @@ class CaptionGenerator():
         #image_model.add(base_model)
         #image_model.add(Flatten())
         image_model.add(Dense(EMBEDDING_DIM, input_dim = 4096, activation='relu'))
-
         image_model.add(RepeatVector(self.max_cap_len))
 
         lang_model = Sequential()
-        lang_model.add(Embedding(self.vocab_size, 256, input_length=self.max_cap_len))
-        lang_model.add(LSTM(256,return_sequences=True))
+        lang_model.add(Dense(EMBEDDING_DIM, input_dim = (20,300))
         lang_model.add(TimeDistributed(Dense(EMBEDDING_DIM)))
 
         model = Sequential()
