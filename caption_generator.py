@@ -105,21 +105,43 @@ class CaptionGenerator():
                 for i in range(len(text.split())-1):
                     total_count+=1
                     partial = [self.word_index[txt] for txt in text.split()[:i+1]]
-                    partial_caps.append(partial)
-                    next_words.append(current_caption)
+                    partial_capv= np.zeros(20, 200)
+                    partial_capv[:i+1] = encoded_captions[:i+1]
+                    partial_caps.append(partial_capv)
+                    next = np.zeros(self.vocab_size)
+                    next[self.word_index[text.split()[i+1]]] = 1
+                    next_words.append(next)
                     images.append(current_image)
 
                     if total_count>=batch_size:
                         next_words = np.asarray(next_words)
                         images = np.asarray(images)
-                        partial_caps = sequence.pad_sequences(partial_caps, maxlen=20, padding='post')
+                        #partial_caps = sequence.pad_sequences(partial_caps, maxlen=self.max_cap_len, padding='post')
                         total_count = 0
                         gen_count+=1
                         print "yielding count: "+str(gen_count)
-                        yield [[images, next_words], next_words]
+                        yield [[images, partial_caps], next_words]
                         partial_caps = []
                         next_words = []
                         images = []
+                # for i in range(len(text.split())-1):
+                #     total_count+=1
+                #     partial = [self.word_index[txt] for txt in text.split()[:i+1]]
+                #     partial_caps.append(partial)
+                #     next_words.append(current_caption)
+                #     images.append(current_image)
+
+                #     if total_count>=batch_size:
+                #         next_words = np.asarray(next_words)
+                #         images = np.asarray(images)
+                #         partial_caps = sequence.pad_sequences(partial_caps, maxlen=20, padding='post')
+                #         total_count = 0
+                #         gen_count+=1
+                #         print "yielding count: "+str(gen_count)
+                #         yield [[images, next_words], next_words]
+                #         partial_caps = []
+                #         next_words = []
+                #         images = []
         
     def load_image(self, path):
         img = image.load_img(path, target_size=(224,224))
@@ -134,7 +156,6 @@ class CaptionGenerator():
         #image_model.add(base_model)
         #image_model.add(Flatten())
         image_model.add(Dense(EMBEDDING_DIM, input_dim = 4096, activation='relu'))
-        print "Activation on image"
         image_model.add(RepeatVector(20))
 
         lang_model = Sequential()
@@ -143,13 +164,9 @@ class CaptionGenerator():
 
         model = Sequential()
         model.add(Merge([image_model, lang_model], mode='concat'))
-        print "Merged"
         model.add(LSTM(1000,return_sequences=False))
-        print "LSTM"
         model.add(Dense(self.vocab_size))
-        print "Dense"
         model.add(Activation('softmax'))
-        print "Activation"
 
         print "Model created!"
 
