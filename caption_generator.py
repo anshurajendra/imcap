@@ -136,7 +136,7 @@ class CaptionGenerator():
         #image_model.add(base_model)
         #image_model.add(Flatten())
         image_model.add(Dense(EMBEDDING_DIM, input_dim = 4096, activation='relu'))
-        image_model.add(RepeatVector(self.max_cap_len))
+        image_model.add(RepeatVector(20))
 
         lang_model = Sequential()
         lang_model.add(Dense(EMBEDDING_DIM, input_shape=(20,300)))
