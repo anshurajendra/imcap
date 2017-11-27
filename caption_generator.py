@@ -134,18 +134,22 @@ class CaptionGenerator():
         #image_model.add(base_model)
         #image_model.add(Flatten())
         image_model.add(Dense(EMBEDDING_DIM, input_dim = 4096, activation='relu'))
+        print "Activation on image"
         image_model.add(RepeatVector(20))
 
         lang_model = Sequential()
-        lang_model.add(Embedding(200, EMBEDDING_DIM, input_length=20))
-        #lang_model.add(Dense(EMBEDDING_DIM, input_shape=(20,200)))
+        lang_model.add(Dense(EMBEDDING_DIM, input_shape=(20,200)))
         lang_model.add(TimeDistributed(Dense(EMBEDDING_DIM)))
 
         model = Sequential()
         model.add(Merge([image_model, lang_model], mode='concat'))
+        print "Merged"
         model.add(LSTM(1000,return_sequences=False))
+        print "LSTM"
         model.add(Dense(self.vocab_size))
+        print "Dense"
         model.add(Activation('softmax'))
+        print "Activation"
 
         print "Model created!"
 
@@ -155,6 +159,33 @@ class CaptionGenerator():
         model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
         return model
     def create_basic_model(self, ret_model = False):
+        #base_model = VGG16(weights='imagenet', include_top=False, input_shape = (224, 224, 3))
+        #base_model.trainable=False
+        image_model = Sequential()
+        #image_model.add(base_model)
+        #image_model.add(Flatten())
+        image_model.add(Dense(EMBEDDING_DIM, input_dim = 4096, activation='relu'))
+        image_model.add(RepeatVector(20))
+
+        lang_model = Sequential()
+        lang_model.add(Dense(EMBEDDING_DIM, input_shape=(20,200)))
+        lang_model.add(TimeDistributed(Dense(EMBEDDING_DIM)))
+
+        model = Sequential()
+        model.add(Merge([image_model, lang_model], mode='concat'))
+        model.add(RNN(1000,return_sequences=False))
+        model.add(Dense(self.vocab_size))
+        model.add(Activation('softmax'))
+
+        print "Basic Model created!"
+
+        if(ret_model==True):
+            return model
+
+        model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        return model
+
+    def create_advanced_model(self, ret_model = False):
         #base_model = VGG16(weights='imagenet', include_top=False, input_shape = (224, 224, 3))
         #base_model.trainable=False
         image_model = Sequential()
