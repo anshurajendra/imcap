@@ -6,7 +6,7 @@ from keras.applications.imagenet_utils import preprocess_input
 
 counter = 0
 EMBEDDING_DIM=200
-MAX_CAP_LEN = 22
+MAX_CAP_LEN = 18
 
 def load_image(path):
     img = image.load_img(path, target_size=(224,224))
@@ -66,14 +66,13 @@ def prepare_dataset(no_imgs = -1):
 	for img in train_imgs:
 		encoded_images[img] = get_encoding(encoding_model, img)
 		capt = data[img][0]
-		capt = "<start> "+capt+" <end>"
 		capt_w = capt.split()
 		if(len(capt_w) > MAX_CAP_LEN):
 			capt_w = capt_w[:MAX_CAP_LEN]
-		capt_vec = np.zeros(MAX_CAP_LEN, EMBEDDING_DIM)
+		capt_w = ['START'] +capt_w + ['END'] 
+		capt_vec = np.zeros((MAX_CAP_LEN+2, EMBEDDING_DIM), dtype=int)
 		for i, w in enumerate(capt_w):
-			if w in embeddings_index:
-				capt_vec[i,:] = embeddings_index(w)
+			capt_vec[i,:] = embeddings_index(w)
 		encoded_captions[img] = capt_vec
 		for capt in data[img]:
 			caption = "<start> "+capt+" <end>"
@@ -86,11 +85,11 @@ def prepare_dataset(no_imgs = -1):
 	for img in test_imgs:
 		encoded_images[img] = get_encoding(encoding_model, img)
 		capt = data[img][0]
-		capt = "START "+capt+" END"
 		capt_w = capt.split()
 		if(len(capt_w) > MAX_CAP_LEN):
 			capt_w = capt_w[:MAX_CAP_LEN]
-		capt_vec = np.zeros(MAX_CAP_LEN, EMBEDDING_DIM)
+		capt_w = ['START'] +capt_w + ['END'] 
+		capt_vec = np.zeros((MAX_CAP_LEN+2, EMBEDDING_DIM), dtype=int)
 		for i, w in enumerate(capt_w):
 			if w in embeddings_index:
 				capt_vec[i,:] = embeddings_index(w)
