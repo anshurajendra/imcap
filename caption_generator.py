@@ -139,7 +139,7 @@ class CaptionGenerator():
         image_model.add(RepeatVector(self.max_cap_len))
 
         lang_model = Sequential()
-        lang_model.add(Dense(EMBEDDING_DIM, input_dim = (20,300)))
+        lang_model.add(Dense(EMBEDDING_DIM, input_shape=(20,300)))
         lang_model.add(TimeDistributed(Dense(EMBEDDING_DIM)))
 
         model = Sequential()
