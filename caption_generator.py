@@ -137,7 +137,8 @@ class CaptionGenerator():
         image_model.add(RepeatVector(20))
 
         lang_model = Sequential()
-        lang_model.add(Dense(EMBEDDING_DIM, input_shape=(20,200)))
+        lang_model.add(Embedding(200, EMBEDDING_DIM, input_length=20))
+        #lang_model.add(Dense(EMBEDDING_DIM, input_shape=(20,200)))
         lang_model.add(TimeDistributed(Dense(EMBEDDING_DIM)))
 
         model = Sequential()
