@@ -167,6 +167,7 @@ class CaptionGenerator():
         model.add(LSTM(1000,return_sequences=False))
         model.add(Dense(self.vocab_size))
         model.add(Activation('softmax'))
+        model.summary()
 
         print "Model created!"
 
