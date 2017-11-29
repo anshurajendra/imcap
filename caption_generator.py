@@ -20,7 +20,7 @@ class CaptionGenerator():
         self.word_index = None
         self.total_samples = None
         self.encoded_images = pickle.load( open( "encoded_images.p", "rb" ) )
-        self.encoded_captions = pickle.load( open( "encoded_captions.p", "rb" ) )
+        self.encoded_vocab = pickle.load( open( "encoded_vocab.p", "rb" ) )
         self.variable_initializer()
 
     def variable_initializer(self):
@@ -83,12 +83,12 @@ class CaptionGenerator():
             for text in caps:
                 image_counter+=1
                 current_image = self.encoded_images[imgs[image_counter]]
-                current_caption = self.encoded_captions[imgs[image_counter]]
                 for i in range(len(text.split())-1):
                     total_count+=1
                     partial = [self.word_index[txt] for txt in text.split()[:i+1]]
-                    partial_capv= np.zeros((20, 200))
-                    partial_capv[:i+1] = current_caption[:i+1]
+                    partial_enc = [self.encoded_vocab[txt] for txt in text.split()[:i+1]]
+                    partial_capv= np.zeros((self.max_cap_len, 200))
+                    partial_capv[:i+1,:]=partial_enc
                     partial_caps.append(partial_capv)
                     next = np.zeros(self.vocab_size)
                     next[self.word_index[text.split()[i+1]]] = 1
@@ -120,10 +120,10 @@ class CaptionGenerator():
         #image_model.add(base_model)
         #image_model.add(Flatten())
         image_model.add(Dense(EMBEDDING_DIM, input_dim = 4096, activation='relu'))
-        image_model.add(RepeatVector(self.max_len))
+        image_model.add(RepeatVector(self.max_cap_len))
 
         lang_model = Sequential()
-        lang_model.add(Dense(EMBEDDING_DIM, input_shape=(self.max_len,200)))
+        lang_model.add(Dense(EMBEDDING_DIM, input_shape=(self.max_cap_len, 200)))
         lang_model.add(TimeDistributed(Dense(EMBEDDING_DIM)))
 
         model = Sequential()
