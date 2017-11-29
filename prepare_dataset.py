@@ -64,7 +64,8 @@ def prepare_dataset(no_imgs = -1):
 	for img in train_imgs:
 		encoded_images[img] = get_encoding(encoding_model, img)
 		for capt in data[img]:
-			caption = "mdbs "+capt+" mdbr"
+			caption = "mdbs "+ capt.lower() +" mdbr"
+			caption = caption.replace('-', ' ')
 			if not set(caption.split()).issubset(embeddings):
 				continue
 			f_train_dataset.write(img+"\t"+caption+"\n")
@@ -76,8 +77,9 @@ def prepare_dataset(no_imgs = -1):
 	for img in test_imgs:
 		encoded_images[img] = get_encoding(encoding_model, img)
 		for capt in data[img]:
-			caption = "mdbs "+capt+" mdbr"
+			caption = "mdbs "+ capt.lower() +" mdbr"
 			if not set(caption.split()).issubset(embeddings):
+				print caption
 				continue
 			f_test_dataset.write(img+"\t"+caption+"\n")
 			f_test_dataset.flush()
