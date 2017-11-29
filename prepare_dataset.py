@@ -6,7 +6,7 @@ from keras.applications.imagenet_utils import preprocess_input
 
 counter = 0
 EMBEDDING_DIM=200
-MAX_CAP_LEN = 18
+MAX_CAP_LEN = 40
 
 def load_image(path):
     img = image.load_img(path, target_size=(224,224))
@@ -67,8 +67,6 @@ def prepare_dataset(no_imgs = -1):
 		encoded_images[img] = get_encoding(encoding_model, img)
 		capt = data[img][0]
 		capt_w = capt.split()
-		if(len(capt_w) > MAX_CAP_LEN):
-			capt_w = capt_w[:MAX_CAP_LEN]
 		capt_w = ['mdbs'] +capt_w + ['mdbr'] 
 		capt_vec = np.zeros((MAX_CAP_LEN+2, EMBEDDING_DIM), dtype=int)
 		for i, w in enumerate(capt_w):
@@ -76,7 +74,7 @@ def prepare_dataset(no_imgs = -1):
 				capt_vec[i,:] = embeddings_index[w.lower()]
 		encoded_captions[img] = capt_vec
 		for capt in data[img]:
-			caption = "<start> "+capt+" <end>"
+			caption = capt_w.
 			f_train_dataset.write(img+"\t"+caption+"\n")
 			f_train_dataset.flush()
 			c_train += 1
