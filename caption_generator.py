@@ -100,6 +100,7 @@ class CaptionGenerator():
 
                     if total_count>=batch_size:
                         next_words = np.asarray(next_words)
+                        partial_caps = np.asarray(partial_caps.append(partial_capv))
                         images = np.asarray(images)
                         #partial_caps = sequence.pad_sequences(partial_caps, maxlen=self.max_cap_len, padding='post')
                         total_count = 0
@@ -174,6 +175,7 @@ class CaptionGenerator():
         model.add(RNN(1000,return_sequences=False))
         model.add(Dense(self.vocab_size))
         model.add(Activation('softmax'))
+        model.summary()
 
         print "Basic Model created!"
 
@@ -201,6 +203,7 @@ class CaptionGenerator():
         model.add(RNN(1000,return_sequences=False))
         model.add(Dense(self.vocab_size))
         model.add(Activation('softmax'))
+        model.summary()
 
         print "Basic Model created!"
 
@@ -231,6 +234,7 @@ class CaptionGenerator():
         model.add(LSTM(1000,return_sequences=False))
         model.add(Dense(self.vocab_size))
         model.add(Activation('softmax'))
+        model.summary()
 
         print "Model created!"
 
@@ -262,6 +266,7 @@ class CaptionGenerator():
         model.add(LSTM(1000,return_sequences=False))
         model.add(Dense(self.vocab_size))
         model.add(Activation('softmax'))
+        model.summary()
 
         print "Model created!"
 

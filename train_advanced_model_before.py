@@ -1,7 +1,7 @@
 import caption_generator
 from keras.callbacks import ModelCheckpoint
 
-def train_model(weight = None, batch_size=32, epochs = 10):
+def train_model(weight = None, batch_size=64, epochs = 10):
 
     cg = caption_generator.CaptionGenerator()
     model = cg.create_advanced_att_model_before()
