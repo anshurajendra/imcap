@@ -30,13 +30,16 @@ def get_all_captions(captions):
     return final_captions
 
 def generate_captions(model, image, beam_size):
+	encoded_vocab = pickle.load(open("encoded_vocab.p", "rb"))
 	start = [cg.word_index['mdbs']]
 	captions = [[start,0.0]]
 	while(len(captions[0][0]) < cg.max_cap_len):
 		temp_captions = []
 		for caption in captions:
-			partial_caption = sequence.pad_sequences([caption[0]], maxlen=cg.max_cap_len, padding='post')
-			next_words_pred = model.predict([np.asarray([image]), np.asarray(partial_caption)])[0]
+			partial_enc = [encoded_vocab[cg.index_word[txt]] for txt in caption[0]]
+			partial_capv = np.zeros((cg.max_cap_len, 200))
+			partial_capv[:len(caption[0]), :] = partial_enc
+			next_words_pred = model.predict([np.asarray([image]), np.asarray([np.asarray(partial_capv)])])[0]
 			next_words = np.argsort(next_words_pred)[-beam_size:]
 			for word in next_words:
 				new_partial_caption, new_partial_caption_prob = caption[0][:], caption[1]
