@@ -216,8 +216,8 @@ class CaptionGenerator():
 
         image_model.add(RepeatVector(self.max_cap_len))
 
-        inputs = Input(shape=(self.max_cap_len,))
-        embedded = Dense(EMBEDDING_DIM, input_dim = self.max_cap_len)(inputs)
+        inputs = Input(shape=(self.max_cap_len,200))
+        embedded = Dense(EMBEDDING_DIM, input_shape = (self.max_cap_len,200))(inputs)
         lstm_out = LSTM(EMBEDDING_DIM, return_sequences=True)(embedded)
         attention_mul = self.attention_3d_block(lstm_out)
         attention_mul = Flatten()(attention_mul)
@@ -238,8 +238,8 @@ class CaptionGenerator():
 
         image_model.add(RepeatVector(self.max_cap_len))
 
-        inputs = Input(shape=(self.max_cap_len,))
-        embedded = Dense(EMBEDDING_DIM, input_dim = self.max_cap_len)(inputs)
+        inputs = Input(shape=(self.max_cap_len,200))
+        embedded = Dense(EMBEDDING_DIM, input_shape = (self.max_cap_len,200))(inputs)
         attention_mul = self.attention_3d_block(embedded)
         attention_mul = LSTM(EMBEDDING_DIM, return_sequences=False)(attention_mul)
         outputs = TimeDistributed(Dense(EMBEDDING_DIM))(attention_mul)
