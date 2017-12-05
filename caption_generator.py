@@ -222,7 +222,7 @@ class CaptionGenerator():
         embedded = Dense(EMBEDDING_DIM, input_shape = (self.max_cap_len,200))(inputs)
         lstm_out = LSTM(EMBEDDING_DIM, return_sequences=True)(embedded)
         attention_mul = self.attention_3d_block(lstm_out)
-        attention_mul = Flatten()(attention_mul)
+        #attention_mul = Flatten()(attention_mul)
         outputs = TimeDistributed(Dense(EMBEDDING_DIM))(attention_mul)
         lang_model = Model(input=[inputs], output=outputs)
 
