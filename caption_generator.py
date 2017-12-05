@@ -246,6 +246,7 @@ class CaptionGenerator():
         attention_mul = LSTM(EMBEDDING_DIM, return_sequences=False)(attention_mul)
         dense = Dense(EMBEDDING_DIM)(attention_mul)
         outputs = RepeatVector(self.max_cap_len)(dense)
+        outputs = TimeDistributed(Dense(EMBEDDING_DIM))(outputs)
         lang_model = Model(input=[inputs], output=outputs)
 
         model = Sequential()
