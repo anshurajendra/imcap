@@ -100,7 +100,7 @@ class CaptionGenerator():
 
                     if total_count>=batch_size:
                         next_words = np.asarray(next_words)
-                        partial_caps = np.asarray(partial_caps.append(partial_capv))
+                        partial_caps = np.asarray(partial_caps)
                         images = np.asarray(images)
                         #partial_caps = sequence.pad_sequences(partial_caps, maxlen=self.max_cap_len, padding='post')
                         total_count = 0
