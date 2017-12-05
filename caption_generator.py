@@ -2,8 +2,8 @@ from vgg16 import VGG16
 from keras.applications import inception_v3
 import numpy as np
 import pandas as pd
-from keras.models import Sequential
-from keras.layers import LSTM, Embedding, TimeDistributed, Dense, RepeatVector, Merge, Activation, Flatten
+from keras.models import *
+from keras.layers import LSTM, Embedding, TimeDistributed, Dense, RepeatVector, Merge, Activation, Flatten, Input
 from keras.preprocessing import image, sequence
 from keras.callbacks import ModelCheckpoint
 import cPickle as pickle
