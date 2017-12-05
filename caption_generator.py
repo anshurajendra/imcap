@@ -9,6 +9,7 @@ from keras.callbacks import ModelCheckpoint
 import cPickle as pickle
 
 EMBEDDING_DIM = 128
+SINGLE_ATTENTION_VECTOR = False
 
 
 class CaptionGenerator():
@@ -112,6 +113,19 @@ class CaptionGenerator():
         x = image.img_to_array(img)
         return np.asarray(x)
 
+    def attention_3d_block(self, inputs):
+        # inputs.shape = (batch_size, time_steps, input_dim)
+        input_dim = int(inputs.shape[2])
+        a = Permute((2, 1))(inputs)
+        a = Reshape((input_dim, TIME_STEPS))(a) # this line is not useful. It's just to know which dimension is what.
+        a = Dense(TIME_STEPS, activation='softmax')(a)
+        if SINGLE_ATTENTION_VECTOR:
+            a = Lambda(lambda x: K.mean(x, axis=1), name='dim_reduction')(a)
+            a = RepeatVector(input_dim)(a)
+        a_probs = Permute((2, 1), name='attention_vec')(a)
+        output_attention_mul = merge([inputs, a_probs], name='attention_mul', mode='mul')
+        return output_attention_mul
+
 
     def create_model(self, ret_model = False):
         #base_model = VGG16(weights='imagenet', include_top=False, input_shape = (224, 224, 3))
@@ -187,6 +201,57 @@ class CaptionGenerator():
         model.add(Activation('softmax'))
 
         print "Basic Model created!"
+
+        if(ret_model==True):
+            return model
+
+        model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        return model
+
+    def create_advanced_att_model_after(self, ret_model = False):
+        image_model = Sequential()
+        #image_model.add(base_model)
+        #image_model.add(Flatten())
+        image_model.add(Dense(EMBEDDING_DIM, input_dim = 4096, activation='relu'))
+
+        image_model.add(RepeatVector(self.max_cap_len))
+
+        inputs = Input(shape=(self.max_cap_len,))
+        embedded = Dense(EMBEDDING_DIM, input_dim = self.max_cap_len)(inputs)
+        lstm_out = LSTM(EMBEDDING_DIM, return_sequences=True)(embedded)
+        attention_mul = self.attention_3d_block(lstm_out)
+        attention_mul = Flatten()(attention_mul)
+        outputs = TimeDistributed(Dense(EMBEDDING_DIM))(attention_mul)
+        lang_model = Model(input=[inputs], output=outputs)
+
+        model = Sequential()
+        model.add(Merge([image_model, lang_model], mode='concat'))
+        model.add(LSTM(1000,return_sequences=False))
+        model.add(Dense(self.vocab_size))
+        model.add(Activation('softmax'))
+
+    def create_advanced_att_model_before(self, ret_model = False):
+        image_model = Sequential()
+        #image_model.add(base_model)
+        #image_model.add(Flatten())
+        image_model.add(Dense(EMBEDDING_DIM, input_dim = 4096, activation='relu'))
+
+        image_model.add(RepeatVector(self.max_cap_len))
+
+        inputs = Input(shape=(self.max_cap_len,))
+        embedded = Dense(EMBEDDING_DIM, input_dim = self.max_cap_len)(inputs)
+        attention_mul = self.attention_3d_block(embedded)
+        attention_mul = LSTM(EMBEDDING_DIM, return_sequences=False)(attention_mul)
+        outputs = TimeDistributed(Dense(EMBEDDING_DIM))(attention_mul)
+        lang_model = Model(input=[inputs], output=outputs)
+
+        model = Sequential()
+        model.add(Merge([image_model, lang_model], mode='concat'))
+        model.add(LSTM(1000,return_sequences=False))
+        model.add(Dense(self.vocab_size))
+        model.add(Activation('softmax'))
+
+        print "Model created!"
 
         if(ret_model==True):
             return model
