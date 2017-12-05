@@ -232,6 +232,14 @@ class CaptionGenerator():
         model.add(Dense(self.vocab_size))
         model.add(Activation('softmax'))
 
+        print "Model created!"
+
+        if(ret_model==True):
+            return model
+
+        model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        return model
+
     def create_advanced_att_model_before(self, ret_model = False):
         image_model = Sequential()
         #image_model.add(base_model)
