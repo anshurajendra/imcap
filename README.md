@@ -6,7 +6,7 @@ This project was done as part of Statistical and machine learning course at Carn
 ## Dataset
 
 * Images - Flickr8k (include link)
-* Word embedding - GloVe embeddings (include link)
+* Caption embeddings - GloVe embeddings (include link)
 
 ## Model Archtechture
 
@@ -15,10 +15,10 @@ Include image
 ## Model Input
 
 ### Image 
-Pre-trained 4096d VGGNET features. Run `vggnet.py` to obtain the image embeddings
+Pre-trained 4096d VGGNET features. Run `vggnet.py` to obtain the image embeddings.
 
 ### Language 
-GloVe embeddings.  Run `caption/prepare_data.py` to obtain the word embeddings
+GloVe embeddings 160d.  Run `caption/prepare_data.py` to obtain the word embeddings.
 
 ## Model Output
 
