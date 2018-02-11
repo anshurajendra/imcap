@@ -5,6 +5,7 @@ import numpy as np
 from keras.applications.imagenet_utils import preprocess_input	
 
 counter = 0
+EMBEDDING_DIM=200
 
 def load_image(path):
     img = image.load_img(path, target_size=(224,224))
@@ -28,6 +29,8 @@ def get_encoding(model, img):
 	return pred
 
 def prepare_dataset(no_imgs = -1):
+	embeddings = set(pickle.load(open( "encoded_vocab.p", "rb" )).keys())
+
 	f_train_images = open('Flickr8k_text/Flickr_8k.trainImages.txt','rb')
 	train_imgs = f_train_images.read().strip().split('\n') if no_imgs == -1 else f_train_images.read().strip().split('\n')[:no_imgs]
 	f_train_images.close()
@@ -61,7 +64,10 @@ def prepare_dataset(no_imgs = -1):
 	for img in train_imgs:
 		encoded_images[img] = get_encoding(encoding_model, img)
 		for capt in data[img]:
-			caption = "<start> "+capt+" <end>"
+			caption = "mdbs "+ capt.lower() +" mdbr"
+			caption = caption.replace('-', ' ')
+			if not set(caption.split()).issubset(embeddings):
+				continue
 			f_train_dataset.write(img+"\t"+caption+"\n")
 			f_train_dataset.flush()
 			c_train += 1
@@ -71,13 +77,17 @@ def prepare_dataset(no_imgs = -1):
 	for img in test_imgs:
 		encoded_images[img] = get_encoding(encoding_model, img)
 		for capt in data[img]:
-			caption = "<start> "+capt+" <end>"
+			caption = "mdbs "+ capt.lower() +" mdbr"
+			if not set(caption.split()).issubset(embeddings):
+				print caption
+				continue
 			f_test_dataset.write(img+"\t"+caption+"\n")
 			f_test_dataset.flush()
 			c_test += 1
 	f_test_dataset.close()
 	with open( "encoded_images.p", "wb" ) as pickle_f:
-		pickle.dump( encoded_images, pickle_f )  
+		pickle.dump( encoded_images, pickle_f )
+
 	return [c_train, c_test]
 
 if __name__ == '__main__':

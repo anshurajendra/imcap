@@ -10,7 +10,7 @@ def process_caption(caption):
 	caption_split = caption.split()
 	processed_caption = caption_split[1:]
 	try:
-		end_index = processed_caption.index('<end>')
+		end_index = processed_caption.index('mdbr')
 		processed_caption = processed_caption[:end_index]
 	except:
 		pass
@@ -30,13 +30,16 @@ def get_all_captions(captions):
     return final_captions
 
 def generate_captions(model, image, beam_size):
-	start = [cg.word_index['<start>']]
+	encoded_vocab = pickle.load(open("encoded_vocab.p", "rb"))
+	start = [cg.word_index['mdbs']]
 	captions = [[start,0.0]]
 	while(len(captions[0][0]) < cg.max_cap_len):
 		temp_captions = []
 		for caption in captions:
-			partial_caption = sequence.pad_sequences([caption[0]], maxlen=cg.max_cap_len, padding='post')
-			next_words_pred = model.predict([np.asarray([image]), np.asarray(partial_caption)])[0]
+			partial_enc = [encoded_vocab[cg.index_word[txt]] for txt in caption[0]]
+			partial_capv = np.zeros((cg.max_cap_len, 200))
+			partial_capv[:len(caption[0]), :] = partial_enc
+			next_words_pred = model.predict([np.asarray([image]), np.asarray([np.asarray(partial_capv)])])[0]
 			next_words = np.argsort(next_words_pred)[-beam_size:]
 			for word in next_words:
 				new_partial_caption, new_partial_caption_prob = caption[0][:], caption[1]
@@ -51,7 +54,7 @@ def generate_captions(model, image, beam_size):
 
 def test_model(weight, img_name, beam_size = 3):
 	encoded_images = pickle.load( open( "encoded_images.p", "rb" ) )
-	model = cg.create_model(ret_model = True)
+	model = cg.create_advanced_att_model_before(ret_model = True)
 	model.load_weights(weight)
 
 	image = encoded_images[img_name]
@@ -68,7 +71,7 @@ def test_model_on_images(weight, img_dir, beam_size = 3):
 	with open(img_dir, 'rb') as f_images:
 		imgs = f_images.read().strip().split('\n')
 	encoded_images = pickle.load( open( "encoded_images.p", "rb" ) )
-	model = cg.create_model(ret_model = True)
+	model = cg.create_advanced_att_model_before(ret_model = True)
 	model.load_weights(weight)
 
 	f_pred_caption = open('predicted_captions.txt', 'wb')
@@ -107,7 +110,7 @@ def test_model_on_images(weight, img_dir, beam_size = 3):
 	return bleu_score(hypotheses, references)
 
 if __name__ == '__main__':
-	weight = 'weights-improvement-48.hdf5'
+	weight = 'Models/Weights_before.h5'
 	test_image = '3155451946_c0862c70cb.jpg'
 	test_img_dir = 'Flickr8k_text/Flickr_8k.testImages.txt'
 	#print test_model(weight, test_image)
