@@ -13,8 +13,8 @@ Include image
 
 ## Model Input
 
-Image - Pre-trained 4096d VGGNET features
-Language - GloVe embeddings
+* Image - Pre-trained 4096d VGGNET features
+* Language - GloVe embeddings
 
 ## Model Output
 
@@ -25,7 +25,7 @@ Next word in the caption
 To train the models, run one of the train files below:
 
 * Approach 1 : `train_model.py`
-....
+* ....
 
 ## Testing
 
