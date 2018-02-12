@@ -10,7 +10,9 @@ This project was done as part of Statistical and machine learning course at Carn
 
 ## Model Archtechture
 
-Include image
+<div align="center">
+  <img src="images/approaches.JPG"><br><br>
+</div>
 
 ## Model Input
 
@@ -38,7 +40,13 @@ Run `train_model.py` after changing the weights file name.
 
 ## Results
 
-Include image
+<div align="center">
+  <img src="images/res1.JPG"><br><br>
+</div>
+
+<div align="center">
+  <img src="images/res2.JPG"><br><br>
+</div>
 
 ## References
 
