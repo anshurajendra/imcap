@@ -5,8 +5,8 @@ This project was done as part of Statistical and machine learning course at Carn
 
 ## Dataset
 
-* Images - Flickr8k (Images: http://nlp.cs.illinois.edu/HockenmaierGroup/Framing_Image_Description/Flickr8k_Dataset.zip; Captions: http://nlp.cs.illinois.edu/HockenmaierGroup/Framing_Image_Description/Flickr8k_text.zip)
-* Caption embeddings - GloVe embeddings (https://nlp.stanford.edu/projects/glove/)
+* Images - Flickr8k ([Images](http://nlp.cs.illinois.edu/HockenmaierGroup/Framing_Image_Description/Flickr8k_Dataset.zip) and [Captions](http://nlp.cs.illinois.edu/HockenmaierGroup/Framing_Image_Description/Flickr8k_text.zip))
+* Caption embeddings - [GloVe](https://nlp.stanford.edu/projects/glove/) embeddings
 
 ## Model Archtechture
 
@@ -27,12 +27,14 @@ Next word in the caption
 ## Training
 
 To train the models, run one of the train files below:
-
 * Approach 1 : `train_model.py`
-* ....
+* Approach 2 : `train_model_basic.py`
+* Approach 3 : `train_advanced_model.py`
+* Approach 4 : `train_advanced_model_before.py`
+* Approach 5 : `train_advanced_model_after.py`
 
 ## Testing
-
+Run `train_model.py` after changing the weights file name.
 
 ## Results
 
@@ -40,5 +42,8 @@ Include image
 
 ## References
 
+[1] [Show and Tell: A Neural Image Caption Generator](https://arxiv.org/pdf/1411.4555.pdf)
 
+[2]	[Caption generator](https://github.com/anuragmishracse/caption_generator) repository
 
+[3] VGGNet architecture obtained from [Very Deep Convolutional Networks for Large-Scale Image Recognition](https://arxiv.org/abs/1409.1556)
