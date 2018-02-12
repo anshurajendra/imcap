@@ -5,8 +5,8 @@ This project was done as part of Statistical and machine learning course at Carn
 
 ## Dataset
 
-* Images - Flickr8k (include link)
-* Caption embeddings - GloVe embeddings (include link)
+* Images - Flickr8k (Images: http://nlp.cs.illinois.edu/HockenmaierGroup/Framing_Image_Description/Flickr8k_Dataset.zip; Captions: http://nlp.cs.illinois.edu/HockenmaierGroup/Framing_Image_Description/Flickr8k_text.zip)
+* Caption embeddings - GloVe embeddings (https://nlp.stanford.edu/projects/glove/)
 
 ## Model Archtechture
 
